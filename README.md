@@ -11,8 +11,8 @@ Desafio proposto pela [Cubos Academy](https://cubos.academy/sucesso), tem como o
 - [Axios](https://axios-http.com/)
 - [Cors](https://www.npmjs.com/package/cors)
 - [Express](https://expressjs.com/pt-br/)
-- [jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken)
-- [nodemon](https://www.npmjs.com/package/nodemon)
+- [Jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken)
+- [Nodemon](https://www.npmjs.com/package/nodemon)
 
 
 :running_woman: Como Executar
