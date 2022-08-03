@@ -6,9 +6,13 @@
 Desafio proposto pela [Cubos Academy](https://cubos.academy/sucesso), tem como objetivo criar uma RestAPI para controle de finanças utilizando Nodejs.
 
 :desktop_computer: Tecnologias usadas
-- [React](https://pt-br.reactjs.org/)
-- [React Router Dom](https://v5.reactrouter.com/)
+- [NodeJS](https://nodejs.org/en/docs/)
+- [PostegreSQL](https://www.postgresql.org/)
 - [Axios](https://axios-http.com/)
+- [Cors](https://www.npmjs.com/package/cors)
+- [Express](https://expressjs.com/pt-br/)
+- [jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken)
+- [nodemon](https://www.npmjs.com/package/nodemon)
 
 
 :running_woman: Como Executar
