@@ -3,13 +3,12 @@ const knex = require('../bancodedados/conexao');
 const listarCategorias = async (req, res) => {
 
     try {
-        const query = `select * from categorias`;
-        const { rows, rowCount } = await conexao.query(query);
+        const categorias = await knex('categorias');
 
-        if (rowCount === 0)
-            return res.status(404).json({ mensagem: 'Nenhuma categoria foi encontrada.' })
+        if (!categorias)
+            return res.status(400).json({ mensagem: 'Nenhuma categoria foi encontrada.' });
 
-        return res.status(200).json(rows)
+        return res.status(200).json(categorias)
     } catch (error) {
         return res.status(400).json({ mensagem: `${error.message}` });
     }

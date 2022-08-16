@@ -1,8 +1,5 @@
-const conexao = require('../bancodedados/conexao');
-const securePassword = require('secure-password');
-const jwt = require('jsonwebtoken');
-
-const pwd = securePassword();
+const knex = require('../bancodedados/conexao');
+const bcrypt = require('bcrypt');
 
 const listarTransacoesDoUsuario = async (req, res) => {
     const { token } = req.headers;

@@ -1,6 +1,5 @@
 const knex = require('../bancodedados/conexao');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 
 const cadastrarUsuario = async (req, res) => {
     const { nome, email, senha } = req.body;
