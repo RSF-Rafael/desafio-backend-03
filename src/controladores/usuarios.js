@@ -10,7 +10,7 @@ const cadastrarUsuario = async (req, res) => {
         const existeUsuario = await knex('usuarios').where({ email }).first();
 
         if (existeUsuario)
-            return res.status(400).json('O email já existe.');
+            return res.status(400).json({ mensagem: 'O email já existe.' });
 
         const senhaCriptografada = await bcrypt.hash(senha, 10);
 
@@ -23,7 +23,7 @@ const cadastrarUsuario = async (req, res) => {
             .returning('*');
 
         if (!usuario)
-            return res.status(400).json('O usuário não foi cadastrado.');
+            return res.status(400).json({ mensagem: 'O usuário não foi cadastrado.' });
 
         return res.status(200).json(usuario[0]);
 

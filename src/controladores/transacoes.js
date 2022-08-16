@@ -21,7 +21,8 @@ const listarTransacoesDoUsuario = async (req, res) => {
             .where({ usuario_id: usuario.id });
 
         if (transacoes.length === 0)
-            return res.status(400).json('Nenhuma transação foi localizada.')
+            return res.status(400).json({ mensagem: 'Nenhuma transação foi localizada.' });
+
         if (filtro) {
             for (let i = 0; i < filtro.length; i++) {
                 filtro[i] = filtro[i].toLowerCase();
@@ -43,22 +44,29 @@ const listarTransacoesDoUsuario = async (req, res) => {
 };
 
 const detalharTransacao = async (req, res) => {
-    const { token } = req.headers;
     const { id } = req.params;
+    const usuario = req.usuario;
 
     try {
-        const usuario = jwt.verify(token, 'secret');
-        const query = `select t.id, t.tipo, t.descricao, t.valor, t.data, t.usuario_id, t.categoria_id, c.descricao as categoria_nome 
-        from transacoes t
-        left join categorias c on t.categoria_id = c.id
-        where t.id = $1 and usuario_id = $2`;
-        const transacao = await conexao.query(query, [id, usuario.id]);
+        const transacao = await knex('transacoes')
+            .leftJoin('categorias', 'transacoes.categoria_id', 'categorias.id')
+            .select(
+                'transacoes.id',
+                'transacoes.tipo',
+                'transacoes.descricao',
+                'transacoes.valor',
+                'transacoes.data',
+                'transacoes.usuario_id',
+                'transacoes.categoria_id',
+                'categorias.descricao as categoria_nome'
+            )
+            .where({ usuario_id: usuario.id, 'transacoes.id': id })
+            .first();
 
-        if (transacao.rowCount === 0)
-            return res.status(404).json({ mensagem: "Transação não encontrada." });
+        if (!transacao)
+            return res.status(400).json({ mensagem: 'Transação não localizada.' });
 
-        return res.status(200).json(transacao.rows[0]);
-
+        return res.status(200).json(transacao);
     } catch (error) {
         return res.status(400).json({ mensagem: `${error.message}` });
     }
@@ -67,7 +75,6 @@ const detalharTransacao = async (req, res) => {
 const cadastrarTransacao = async (req, res) => {
     const usuario = req.usuario
     const { descricao, valor, data, categoria_id, tipo } = req.body;
-    let categoria;
 
     try {
         //fazer validações com yup
@@ -89,7 +96,7 @@ const cadastrarTransacao = async (req, res) => {
             .returning('*');
 
         if (!transacao[0])
-            return res.status(400).json('Não foi possível cadastrar a transação.');
+            return res.status(400).json({ mensagem: 'Não foi possível cadastrar a transação.' });
 
         transacao[0].categoria_nome = categoria.descricao;
 
