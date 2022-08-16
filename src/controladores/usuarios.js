@@ -1,81 +1,36 @@
-const conexao = require('../conexao');
-const securePassword = require('secure-password');
+const knex = require('../bancodedados/conexao');
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
-const pwd = securePassword();
-
-function deixarUsuarioSemSenha(usuario) {
-    const usuarioSemSenha = {
-        id: usuario.id,
-        nome: usuario.nome,
-        email: usuario.email
-    }
-    return usuarioSemSenha
-}
 
 const cadastrarUsuario = async (req, res) => {
     const { nome, email, senha } = req.body;
-    console.log(nome);
-    console.log(email);
-    console.log(senha);
 
     try {
-        const hash = (await pwd.hash(Buffer.from(senha))).toString("hex");
-        const query = `insert into usuarios (nome, email, senha)
-        values ($1, $2, $3)`;
-        const usuario = await conexao.query(query, [nome, email, hash]);
+        //inserir validações com yup
 
-        if (usuario.rowCount === 0)
-            return res.status(400).json('Não foi possivel cadastrar o usuário');
+        const existeUsuario = await knex('usuarios').where({ email }).first();
 
-        return res.status(201).json('Usuário cadastrado com sucesso');
+        if (existeUsuario)
+            return res.status(400).json('O email já existe.');
+
+        const senhaCriptografada = await bcrypt.hash(senha, 10);
+
+        const usuario = await knex('usuarios')
+            .insert({
+                nome,
+                email,
+                senha: senhaCriptografada
+            })
+            .returning('*');
+
+        if (!usuario)
+            return res.status(400).json('O usuário não foi cadastrado.');
+
+        return res.status(200).json(usuario[0]);
+
     } catch (error) {
         return res.status(400).json({ mensagem: `${error.message}` });
     }
-};
-
-const login = async (req, res) => {
-    const { email, senha } = req.body;
-
-    if (!email) return res.status(400).json({ mensagem: "O campo email é obrigatório." });
-    if (!senha) return res.status(400).json({ mensagem: "O campo senha é obrigatório." });
-
-    try {
-        const query = `select * from usuarios where email = $1`;
-        const usuarioEncontrado = await conexao.query(query, [email]);
-
-        if (usuarioEncontrado.rowCount === 0)
-            return res.status(400).json({ mensagem: 'E-mail ou senha incorretos.' });
-
-        const usuario = usuarioEncontrado.rows[0];
-
-        const resultado = await pwd.verify(Buffer.from(senha), Buffer.from(usuario.senha, "hex"));
-
-        switch (resultado) {
-            case securePassword.INVALID_UNRECOGNIZED_HASH:
-            case securePassword.INVALID:
-                return res.status(400).json({ mensagem: 'E-mail ou senha incorretos.' });
-            case securePassword.VALID:
-                break;
-            case securePassword.VALID_NEEDS_REHASH:
-                try {
-                    const hash = (await pwd.hash(Buffer.from(senha))).toString("hex");
-                    const query = `update usuarios set senha = $1 where email = $2`;
-                    await conexao.query(query, [hash, email]);
-                } catch {
-                }
-                break;
-        }
-        const usuarioSemSenha = deixarUsuarioSemSenha(usuario);
-        const token = jwt.sign({
-            ...usuarioSemSenha
-        }, 'secret')
-
-        return res.json({ usuario: usuarioSemSenha, token });
-    } catch (error) {
-        return res.status(400).json({ mensagem: `${error.message}` });
-    }
-
 };
 
 const detalharUsuario = async (req, res) => {
@@ -129,8 +84,6 @@ const atualizarUsuario = async (req, res) => {
 
 module.exports = {
     cadastrarUsuario,
-    login,
     detalharUsuario,
     atualizarUsuario,
-    deixarUsuarioSemSenha
 };

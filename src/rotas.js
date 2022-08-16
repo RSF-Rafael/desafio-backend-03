@@ -12,31 +12,31 @@ const {
 
 const {
     cadastrarUsuario,
-    login,
     detalharUsuario,
     atualizarUsuario
 } = require('./controladores/usuarios');
 
-const { validarCamposObrigatoriosTransacao } = require('./intermediarios/validarCamposObrigatoriosTransacao');
-const { validarEntradaOuSaida } = require('./intermediarios/validarEntradaOuSaida');
-const { verificarEmail } = require('./intermediarios/verificarEmail');
-const { verificarNomeEmailSenha } = require('./intermediarios/verificarNomeEmailSenha');
-const { verificarToken } = require('./intermediarios/verificarToken');
+const { login } = require('./controladores/autenticacao');
+
+const { filtroLogin } = require('./intermediarios/filtroLogin');
 
 const rotas = express();
 
 rotas.post('/login', login);
-rotas.post('/usuario', verificarNomeEmailSenha, verificarEmail, cadastrarUsuario);
-rotas.get('/usuario', verificarToken, detalharUsuario);
-rotas.put('/usuario', verificarToken, verificarNomeEmailSenha, verificarEmail, atualizarUsuario);
+rotas.post('/usuario', cadastrarUsuario);
 
-rotas.get('/categoria', verificarToken, listarCategorias);
+rotas.use(filtroLogin);
 
-rotas.get('/transacao', verificarToken, listarTransacoesDoUsuario);
-rotas.get('/transacao/extrato', verificarToken, obterExtratoTransacoes)
-rotas.get('/transacao/:id', verificarToken, detalharTransacao);
-rotas.post('/transacao', verificarToken, validarCamposObrigatoriosTransacao, validarEntradaOuSaida, cadastrarTransacao);
-rotas.put('/transacao/:id', verificarToken, validarCamposObrigatoriosTransacao, validarEntradaOuSaida, atualizarTransacao);
-rotas.delete('/transacao/:id', verificarToken, excluirTransacao);
+rotas.get('/usuario', detalharUsuario);
+rotas.put('/usuario', atualizarUsuario);
+
+rotas.get('/categoria', listarCategorias);
+
+rotas.get('/transacao', listarTransacoesDoUsuario);
+rotas.get('/transacao/extrato', obterExtratoTransacoes)
+rotas.get('/transacao/:id', detalharTransacao);
+rotas.post('/transacao', cadastrarTransacao);
+rotas.put('/transacao/:id', atualizarTransacao);
+rotas.delete('/transacao/:id', excluirTransacao);
 
 module.exports = rotas;

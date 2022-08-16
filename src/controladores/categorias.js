@@ -1,4 +1,4 @@
-const conexao = require('../conexao');
+const knex = require('../bancodedados/conexao');
 
 const listarCategorias = async (req, res) => {
 

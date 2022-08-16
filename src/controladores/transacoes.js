@@ -1,4 +1,4 @@
-const conexao = require('../conexao');
+const conexao = require('../bancodedados/conexao');
 const securePassword = require('secure-password');
 const jwt = require('jsonwebtoken');
 
