@@ -18,7 +18,7 @@ const {
 } = require('./controladores/usuarios');
 
 const { login } = require('./controladores/autenticacao');
-const { filtroLogin } = require('./intermediarios/filtroLogin');
+const { filtroLogin, validarEntradaOuSaida } = require('./intermediarios');
 
 const rotas = express();
 
@@ -35,8 +35,8 @@ rotas.get('/categoria', listarCategorias);
 rotas.get('/transacao', listarTransacoesDoUsuario);
 rotas.get('/transacao/extrato', obterExtratoTransacoes)
 rotas.get('/transacao/:id', detalharTransacao);
-rotas.post('/transacao', cadastrarTransacao);
-rotas.put('/transacao/:id', atualizarTransacao);
+rotas.post('/transacao', validarEntradaOuSaida, cadastrarTransacao);
+rotas.put('/transacao/:id', validarEntradaOuSaida, atualizarTransacao);
 rotas.delete('/transacao/:id', excluirTransacao);
 
 module.exports = rotas;

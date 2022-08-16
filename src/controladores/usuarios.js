@@ -1,11 +1,13 @@
 const knex = require('../bancodedados/conexao');
 const bcrypt = require('bcrypt');
+const cadastroUsuarioSchema = require('../validacoes/cadastroUsuarioSchema');
+const atualizacaoUsuarioSchema = require('../validacoes/atualizacaoUsuarioSchema');
 
 const cadastrarUsuario = async (req, res) => {
     const { nome, email, senha } = req.body;
 
     try {
-        //inserir validações com yup
+        await cadastroUsuarioSchema.validate(req.body);
 
         const existeUsuario = await knex('usuarios').where({ email }).first();
 
@@ -45,7 +47,8 @@ const atualizarUsuario = async (req, res) => {
         return res.status(404).json('É obrigatório informar ao menos um campo para atualização');
 
     try {
-        // await atualizacaoUsuarioSchema.validate(req.body);
+        await atualizacaoUsuarioSchema.validate(req.body);
+
         const existeUsuario = await knex('usuarios').where({ id }).first();
 
         if (!existeUsuario)

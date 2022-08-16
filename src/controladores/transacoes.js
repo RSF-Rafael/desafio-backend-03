@@ -76,8 +76,6 @@ const cadastrarTransacao = async (req, res) => {
     const { descricao, valor, data, categoria_id, tipo } = req.body;
 
     try {
-        //fazer validações com yup
-
         const categoria = await knex('categorias').where({ id: categoria_id }).first();
 
         if (!categoria)
