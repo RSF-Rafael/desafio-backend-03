@@ -108,36 +108,35 @@ const cadastrarTransacao = async (req, res) => {
 
 const atualizarTransacao = async (req, res) => {
     const { id } = req.params;
-    const { token } = req.headers;
+    const usuario = req.usuario;
     const { descricao, valor, data, categoria_id, tipo } = req.body;
 
-    let categoria;
-
     try {
-        const query = `select * from categorias where id = $1`;
-        categoria = await conexao.query(query, [categoria_id]);
+        // fazer validação com yup
 
-        if (categoria.rowCount === 0)
-            return res.status(404).json({ mensagem: "Não foi encontrada nenhuma categoria para o id informado." });
-    } catch (error) {
-        return res.status(400).json({ mensagem: `${error.message}` });
-    }
+        const categoria = await knex('categorias')
+            .where({ id: categoria_id })
+            .first();
 
-    try {
-        const usuario = jwt.verify(token, 'secret');
-        const query = `update transacoes set
-        descricao = $1, 
-        valor = $2, 
-        data = $3, 
-        categoria_id = $4, 
-        tipo = $5
-        where id = $6 and usuario_id = $7`;
-        const transacao = await conexao.query(query, [descricao, valor, data, categoria_id, tipo, id, usuario.id]);
 
-        if (transacao.rowCount === 0)
-            return res.status(404).json({ mensagem: "Nenhuma transação foi encontrada para esse ID." });
+        if (!categoria)
+            return res.status(404).json({ mensagem: 'Nenhuma categoria foi encontrada para o id informado.' });
 
-        return res.status(204).json();
+        const transacaoAtualizada = await knex('transacoes')
+            .update({
+                descricao,
+                valor,
+                data,
+                categoria_id,
+                tipo
+            })
+            .where({ id, usuario_id: usuario.id })
+            .returning('*');
+
+        if (!transacaoAtualizada[0])
+            return res.status(400).json({ mensagem: 'Não foi possível atualizar a transação.' });
+
+        return res.status(200).json({ mensagem: 'Transação atualizada com sucesso.' });
     } catch (error) {
         return res.status(400).json({ mensagem: `${error.message}` });
     }
@@ -145,16 +144,18 @@ const atualizarTransacao = async (req, res) => {
 
 const excluirTransacao = async (req, res) => {
     const { id } = req.params;
-    const { token } = req.headers;
+    const usuario = req.usuario;
 
     try {
-        const usuario = jwt.verify(token, 'secret');
-        const query = `delete from transacoes where id = $1 and usuario_id = $2`;
-        const transacao = await conexao.query(query, [id, usuario.id]);
-        if (transacao.rowCount === 0)
+        const transacaoExcluida = await knex('transacoes')
+            .where({ id, usuario_id: usuario.id })
+            .del()
+            .returning('*');
+
+        if (!transacaoExcluida[0])
             return res.status(404).json({ mensagem: "Nenhuma transação foi encontrada para esse ID." });
 
-        return res.status(204).json();
+        return res.status(200).json({ mensagem: 'Transação excluída com sucesso.' });
     } catch (error) {
         return res.status(400).json({ mensagem: `${error.message}` });
     }
