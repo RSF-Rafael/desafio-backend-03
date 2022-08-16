@@ -27,7 +27,9 @@
     "jsonwebtoken": "^8.5.1",
     "knex": "^2.2.0",
     "pg": "^8.7.3",
-    "secure-password": "^4.0.0"
+    "secure-password": "^4.0.0",
+    "yup": "^0.32.11",
+    "yup-locales": "^1.2.10"
   },
   "devDependencies": {
     "nodemon": "^2.0.18"

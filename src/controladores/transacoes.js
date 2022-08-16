@@ -1,5 +1,4 @@
 const knex = require('../bancodedados/conexao');
-const bcrypt = require('bcrypt');
 
 const listarTransacoesDoUsuario = async (req, res) => {
     const usuario = req.usuario;
