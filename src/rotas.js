@@ -1,4 +1,5 @@
 const express = require('express');
+
 const { listarCategorias } = require('./controladores/categorias');
 
 const {
@@ -17,7 +18,6 @@ const {
 } = require('./controladores/usuarios');
 
 const { login } = require('./controladores/autenticacao');
-
 const { filtroLogin } = require('./intermediarios/filtroLogin');
 
 const rotas = express();

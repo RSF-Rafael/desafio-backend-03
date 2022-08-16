@@ -34,49 +34,47 @@ const cadastrarUsuario = async (req, res) => {
 };
 
 const detalharUsuario = async (req, res) => {
-    const { token } = req.headers;
-
-    const usuario = jwt.verify(token, 'secret');
-
-    try {
-        const query = `select * from usuarios where id = $1`;
-        const { rows, rowCount } = await conexao.query(query, [usuario.id]);
-
-        if (rowCount === 0)
-            return res.status(404).json({ mensagem: 'Nenhum usuário foi encontrado.' })
-
-        return res.status(200).json(deixarUsuarioSemSenha(rows[0]))
-    } catch (error) {
-        return res.status(400).json({ mensagem: `${error.message}` });
-    }
+    return res.status(200).json(req.usuario);
 };
 
 const atualizarUsuario = async (req, res) => {
-    const { token } = req.headers;
-    const { nome, email, senha } = req.body;
+    let { senha } = req.body;
+    const { nome, email } = req.body;
+    const { id } = req.usuario;
 
-    const usuario = jwt.verify(token, 'secret');
-    const id = usuario.id;
+    if (!nome && !email && !senha)
+        return res.status(404).json('É obrigatório informar ao menos um campo para atualização');
 
     try {
-        const hash = (await pwd.hash(Buffer.from(senha))).toString("hex");
-        const query = `update usuarios set
-        nome = $1,
-        email = $2,
-        senha = $3
-        where id = $4`;
-        const usuario = await conexao.query(query, [nome, email, hash, id]);
+        // await atualizacaoUsuarioSchema.validate(req.body);
+        const existeUsuario = await knex('usuarios').where({ id }).first();
 
-        if (usuario.rowCount === 0)
-            return res.status(400).json({ mensagem: 'Não foi possivel atualizar o usuário' });
+        if (!existeUsuario)
+            return res.status(404).json('Usuário não encontrado.');
 
-        const token = jwt.sign({
-            id: usuario.id,
-            nome: usuario.nome,
-            email: usuario.email
-        }, 'secret');
+        if (senha)
+            senha = await bcrypt.hash(senha, 10);
 
-        return res.status(200).json(token);
+        if (email && email !== req.usuario.email) {
+            const existeEmailUsuario = await knex('usuarios')
+                .where({ email })
+                .first();
+
+            if (existeEmailUsuario)
+                return res.status(404).json('O e-mail já existe.');
+        }
+
+        const usuarioAtualizado = await knex('usuarios')
+            .where({ id })
+            .update({
+                nome,
+                email,
+                senha
+            });
+        if (!usuarioAtualizado)
+            return res.status(400).json("O usuario não foi atualizado");
+
+        return res.status(200).json('Usuario foi atualizado com sucesso.');
     } catch (error) {
         return res.status(400).json({ mensagem: `${error.message}` });
     }
