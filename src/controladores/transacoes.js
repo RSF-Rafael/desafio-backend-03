@@ -2,18 +2,26 @@ const knex = require('../bancodedados/conexao');
 const bcrypt = require('bcrypt');
 
 const listarTransacoesDoUsuario = async (req, res) => {
-    const { token } = req.headers;
+    const usuario = req.usuario;
     const { filtro } = req.query;
 
     try {
-        const usuario = jwt.verify(token, 'secret');
+        const transacoes = await knex('transacoes')
+            .leftJoin('categorias', 'transacoes.categoria_id', 'categorias.id')
+            .select(
+                'transacoes.id',
+                'transacoes.tipo',
+                'transacoes.descricao',
+                'transacoes.valor',
+                'transacoes.data',
+                'transacoes.usuario_id',
+                'transacoes.categoria_id',
+                'categorias.descricao as categoria_nome'
+            )
+            .where({ usuario_id: usuario.id });
 
-        const query = `select t.id, t.tipo, t.descricao, t.valor, t.data, t.usuario_id, t.categoria_id, c.descricao as categoria_nome 
-        from transacoes t
-        left join categorias c on t.categoria_id = c.id
-        where usuario_id = $1`;
-        const { rows: transacoes } = await conexao.query(query, [usuario.id]);
-
+        if (transacoes.length === 0)
+            return res.status(400).json('Nenhuma transação foi localizada.')
         if (filtro) {
             for (let i = 0; i < filtro.length; i++) {
                 filtro[i] = filtro[i].toLowerCase();
