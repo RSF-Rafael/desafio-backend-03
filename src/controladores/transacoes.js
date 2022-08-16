@@ -57,40 +57,35 @@ const detalharTransacao = async (req, res) => {
 };
 
 const cadastrarTransacao = async (req, res) => {
-    const { token } = req.headers;
+    const usuario = req.usuario
     const { descricao, valor, data, categoria_id, tipo } = req.body;
     let categoria;
 
     try {
-        const query = `select * from categorias where id = $1`;
-        categoria = await conexao.query(query, [categoria_id]);
+        //fazer validações com yup
 
-        if (categoria.rowCount === 0)
-            return res.status(404).json({ mensagem: "Não foi encontrada nenhuma categoria para o id informado." });
-    } catch (error) {
-        return res.status(400).json({ mensagem: `${error.message}` });
-    }
+        const categoria = await knex('categorias').where({ id: categoria_id }).first();
 
-    try {
-        const usuario = jwt.verify(token, 'secret');
-        const query = `insert into transacoes (descricao, valor, data, categoria_id, usuario_id, tipo)
-        values ($1, $2, $3, $4, $5, $6)`;
-        await conexao.query(query, [descricao, valor, data, categoria_id, usuario.id, tipo]);
+        if (!categoria)
+            return res.status(400).json('Nenhuma categoria foi encontrada para o id informado.');
 
-        const querySelect = `select max(id) from transacoes`;
-        const transacaoId = await conexao.query(querySelect);
-        const transacao = {
-            id: transacaoId.rows[0].max,
-            tipo,
-            descricao,
-            valor,
-            data,
-            usuario_id: usuario.id,
-            categoria_id,
-            categoria_nome: categoria.rows[0].descricao
-        }
+        const transacao = await knex('transacoes')
+            .insert({
+                tipo,
+                descricao,
+                valor,
+                data,
+                usuario_id: usuario.id,
+                categoria_id
+            })
+            .returning('*');
 
-        return res.status(200).json(transacao);
+        if (!transacao[0])
+            return res.status(400).json('Não foi possível cadastrar a transação.');
+
+        transacao[0].categoria_nome = categoria.descricao;
+
+        return res.status(200).json(transacao[0]);
     } catch (error) {
         return res.status(400).json({ mensagem: `${error.message}` });
     }

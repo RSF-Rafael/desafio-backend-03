@@ -15,12 +15,12 @@ CREATE TABLE categorias (
 DROP TABLE IF EXISTS transacoes CASCADE;
 CREATE TABLE transacoes (
   id serial PRIMARY KEY,
+  tipo text NOT NULL,
   descricao text,
   valor int NOT NULL,
-  data date,
-  categoria_id int NOT NULL,
+  data date default NOW(),
   usuario_id int NOT NULL,
-  tipo text NOT NULL,
+  categoria_id int NOT NULL,
   FOREIGN KEY (categoria_id) REFERENCES categorias (id),
   FOREIGN KEY (usuario_id) REFERENCES usuarios (id)
 );
