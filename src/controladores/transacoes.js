@@ -162,27 +162,30 @@ const excluirTransacao = async (req, res) => {
 };
 
 const obterExtratoTransacoes = async (req, res) => {
-    const { token } = req.headers;
+    const usuario = req.usuario;
 
     try {
-        const usuario = jwt.verify(token, 'secret');
-        const query = `select tipo, sum(valor) from transacoes where usuario_id = $1 group by tipo order by tipo`;
-        const valores = await conexao.query(query, [usuario.id]);
+        const extrato = await knex('transacoes')
+            .where({ usuario_id: usuario.id })
+            .sum('valor')
+            .select('tipo')
+            .groupBy('tipo')
+            .orderBy('tipo')
 
-        if (valores.rowCount === 0)
-            return res.status(404).json({ mensagem: "error" });
+        if (!extrato[0])
+            return res.status(404).json({ mensagem: 'Não foi possível consultar o extrato.' });
 
-        let entrada = valores.rows.filter((item) => item.tipo === 'entrada');
+        let entrada = extrato.filter((item) => item.tipo === 'entrada');
         entrada = !entrada[0] ? 0 : Number(entrada[0].sum);
-        let saida = valores.rows.filter((item) => item.tipo === 'saida');
+
+        let saida = extrato.filter((item) => item.tipo === 'saida');
         saida = !saida[0] ? 0 : Number(saida[0].sum);
 
-        const extrato = {
+        const resumoExtrato = {
             entrada,
             saida
         }
-
-        return res.status(200).json(extrato)
+        return res.status(200).json(resumoExtrato)
     } catch (error) {
         return res.status(400).json({ mensagem: `${error.message}` });
     }
