@@ -8,7 +8,7 @@ const insertUser = async (req, res) => {
     try {
         await insertUserSchema.validate(req.body);
 
-        const userExists = await knex('user').where({ email }).first();
+        const userExists = await knex('users').where({ email }).first();
         if (userExists) return res.status(400).json({ message: 'O email já existe.' });
 
         const encryptedPassword = await bcrypt.hash(password, 10);

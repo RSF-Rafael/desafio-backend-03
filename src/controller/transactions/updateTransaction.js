@@ -27,7 +27,7 @@ const updateTransaction = async (req, res) => {
             .where({ id, user_id: user.id })
             .returning('*');
 
-        if (!updateTransaction[0]) return res.status(400).json({ message: 'Não foi possível atualizar a transação.' });
+        if (!updatedTransaction[0]) return res.status(400).json({ message: 'Não foi possível atualizar a transação.' });
 
         return res.status(200).json({ message: 'Transação atualizada com sucesso.' });
     } catch (error) {

@@ -10,7 +10,7 @@ const deleteTransaction = async (req, res) => {
             .del()
             .returning('*');
 
-        if (!deleteTransaction[0]) return res.status(404).json({ message: "Nenhuma transação foi encontrada para esse ID." });
+        if (!deletedTransaction[0]) return res.status(404).json({ message: "Nenhuma transação foi encontrada para esse ID." });
 
         return res.status(200).json({ message: 'Transação excluída com sucesso.' });
     } catch (error) {

@@ -2,7 +2,7 @@ const knex = require('../../database/connection');
 
 const getUserTransactions = async (req, res) => {
     const user = req.user;
-    const { queryFilter } = req.query;
+    const { filtro } = req.query;
 
     try {
         const transactions = await knex('transactions')
@@ -22,14 +22,14 @@ const getUserTransactions = async (req, res) => {
         // testar essa validação
         if (transactions.length === 0) return res.status(400).json({ message: 'Nenhuma transação foi localizada.' });
 
-        if (queryFilter) {
-            for (let i = 0; i < queryFilter.length; i++) {
-                queryFilter[i] = queryFilter[i].toLowerCase();
+        if (filtro) {
+            for (let i = 0; i < filtro.length; i++) {
+                filtro[i] = filtro[i].toLowerCase();
             }
 
             const filteredTransactions = [];
             transactions.filter((item) => {
-                if (queryFilter.includes(item.category_name.toLowerCase()))
+                if (filtro.includes(item.category_name.toLowerCase()))
                     filteredTransactions.push(item);
             })
 
