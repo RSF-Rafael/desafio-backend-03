@@ -1,31 +1,31 @@
-DROP TABLE IF EXISTS usuarios CASCADE;
-CREATE TABLE usuarios (
+DROP TABLE IF EXISTS users CASCADE;
+CREATE TABLE users (
   id serial PRIMARY KEY,
-  nome text NOT NULL,
+  name text NOT NULL,
   email text UNIQUE NOT NULL,
-  senha text NOT NULL
+  password text NOT NULL
 );
 
-DROP TABLE IF EXISTS categorias CASCADE;
-CREATE TABLE categorias (
+DROP TABLE IF EXISTS categories CASCADE;
+CREATE TABLE categories (
   id serial PRIMARY KEY,
-  descricao text NOT NULL
+  description text NOT NULL
 );
 
-DROP TABLE IF EXISTS transacoes CASCADE;
-CREATE TABLE transacoes (
+DROP TABLE IF EXISTS transactions CASCADE;
+CREATE TABLE transactions (
   id serial PRIMARY KEY,
-  tipo text NOT NULL,
-  descricao text,
-  valor int NOT NULL,
-  data date default NOW(),
-  usuario_id int NOT NULL,
-  categoria_id int NOT NULL,
-  FOREIGN KEY (categoria_id) REFERENCES categorias (id),
-  FOREIGN KEY (usuario_id) REFERENCES usuarios (id)
+  type text NOT NULL,
+  description text,
+  value int NOT NULL,
+  date timestamptz default NOW(),
+  user_id int NOT NULL,
+  category_id int NOT NULL,
+  FOREIGN KEY (category_id) REFERENCES categories (id),
+  FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
-INSERT INTO categorias (descricao) VALUES 
+INSERT INTO categories (description) VALUES 
 ('Alimentação'),
 ('Assinaturas e Serviços'),
 ('Casa'),
