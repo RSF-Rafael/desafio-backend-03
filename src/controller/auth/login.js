@@ -1,4 +1,4 @@
-const knex = require('../bancodedados/conexao');
+const knex = require('../../database/connection');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const loginSchema = require('../../validations/loginSchema');
