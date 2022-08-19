@@ -8,8 +8,10 @@ const authValidation = async (req, res, next) => {
 
     try {
         const token = authorization.replace('Bearer ', '').trim();
+        console.log({ token });
 
         const { id } = jwt.verify(token, process.env.SENHA_JWT);
+        console.log({ id });
 
         const userExists = await knex('users').where({ id }).first();
         if (!userExists) return res.status(404).json({ message: 'Usuario não encontrado.' });
