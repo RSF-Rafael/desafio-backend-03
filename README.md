@@ -12,8 +12,7 @@ Desafio proposto pela [Cubos Academy](https://cubos.academy/sucesso), tem como o
 - [Cors](https://www.npmjs.com/package/cors)
 - [Express](https://expressjs.com/pt-br/)
 - [Jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken)
-- [Nodemon](https://www.npmjs.com/package/nodemon)
-
+- [Nodemon](https://www.npmjs.com/package/nodemon) 
 
 :running_woman: Como Executar
 ```cmd
@@ -21,5 +20,7 @@ cd desafio-backend-03
 npm i
 npm run dev
 ```
+
+Obs: para testar os endpoints deixei a collection do imsonia
 
 ###### tags: `back-end` `módulo 3` `JavaScript` `NodeJS` `desafio`
